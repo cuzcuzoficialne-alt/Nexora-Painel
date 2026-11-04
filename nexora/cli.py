@@ -51,9 +51,25 @@ def start_server():
  url=f"http://127.0.0.1:{cfg['port']}"
  print('Painel:',url); print('API:',url+'/v1/chat/completions'); print('Servidor iniciado. Pressione Ctrl+C para encerrar.')
  try:
-  uvicorn.run(app,host=cfg['host'],port=int(cfg['port']),log_level='warning')
+  uvicorn.run(
+            app,
+            host=cfg['host'],
+            port=int(cfg['port']),
+            log_level='info',
+            http='h11',  # Parser HTTP puro Python: compatível com Termux/Android.
+            access_log=False,
+        )
  except KeyboardInterrupt:
-  pass
+  print('\nEncerramento solicitado.')
+ except Exception as e:
+  from pathlib import Path
+  import traceback
+  log_path = ROOT / 'data' / 'server-startup-error.log'
+  log_path.parent.mkdir(parents=True, exist_ok=True)
+  detail = traceback.format_exc()
+  log_path.write_text(detail, encoding='utf-8')
+  print('\nFalha ao iniciar/manter o servidor:', type(e).__name__, str(e))
+  print('Detalhes salvos em:', log_path)
  finally:
   print('\nFinalizando serviços...')
   try:
@@ -97,7 +113,7 @@ def menu():
 
 def _menu_loop():
  while True:
-  clear(); c=load(); print('\033[95m========== NEXORA AI 0.9.0 =========\033[0m'); print('Modelo:',c.get('default_model') or 'Nenhum'); print('Modelos baixados:',len(list_installed()))
+  clear(); c=load(); print('\033[95m========== NEXORA AI 0.9.1 =========\033[0m'); print('Modelo:',c.get('default_model') or 'Nenhum'); print('Modelos baixados:',len(list_installed()))
   print('\n[1] Iniciar painel + API\n[2] Instalar modelo\n[3] Selecionar modelo GGUF instalado\n[4] Listar modelos instalados\n[5] Instalar motor de IA\n[6] Compartilhar API (Cloudflare)\n[7] Configurações / chave\n[8] Atualizar pelo GitHub\n[0] Sair')
   x=input('\nEscolha: ').strip()
   if x=='1': start_server()

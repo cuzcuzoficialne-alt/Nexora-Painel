@@ -10,7 +10,7 @@ from .engine import chat, stop, is_ready, find_server, start
 from .models import list_installed, select_model
 from . import tunnel as tunnel_manager
 
-VERSION='0.9.0'
+VERSION='0.9.1'
 app=FastAPI(title='NEXORA AI API',version=VERSION)
 WEB=ROOT/'web'; KEY_FILE=DATA/'api_keys.json'; ENGINE_PORT=int(os.environ.get('NEXORA_ENGINE_PORT','8001'))
 app.mount('/assets',StaticFiles(directory=WEB),name='assets')

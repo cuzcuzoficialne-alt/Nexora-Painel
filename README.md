@@ -1,8 +1,8 @@
-# NEXORA PAINEL
+# NEXORA PAINEL 0.9.1
 
 Painel local de IA com interface escura roxa/amarela, API compatível com OpenAI e gerenciamento de modelos GGUF.
 
-> **Estado:** versão-base inicial (0.1.0). A interface, menu, configuração, download de modelos e rotas HTTP estão implementados. O motor `llama-cpp-python` e o túnel público dependem da compatibilidade/instalação no sistema. Ainda não há garantia de execução em todo Android/Windows/macOS; valide no seu dispositivo antes de anunciar como estável.
+> **Estado:** versão 0.9.1 (correções de inicialização e dependências). A interface, menu, configuração, download de modelos e rotas HTTP estão implementados. O motor `llama-cpp-python` e o túnel público dependem da compatibilidade/instalação no sistema. Ainda não há garantia de execução em todo Android/Windows/macOS; valide no seu dispositivo antes de anunciar como estável.
 
 ## Instalação
 
@@ -22,7 +22,7 @@ cd Nexora-Painel
 py run.py
 ```
 
-O launcher verifica e instala as dependências Python básicas. No primeiro uso, escolha **Instalar motor de IA**, depois instale um modelo no catálogo. O primeiro download pode ser grande e exige internet e espaço livre.
+O launcher verifica e instala as dependências Python declaradas em `requirements.txt`. No Termux com Python 3.14, prepara primeiro o wheel Android do `pydantic-core` para evitar compilação Rust. O Uvicorn usa o protocolo HTTP `h11`, sem depender de extensões nativas. No primeiro uso, escolha **Instalar motor de IA**, depois instale um modelo no catálogo. O primeiro download pode ser grande e exige internet e espaço livre.
 
 ## API local
 
@@ -55,7 +55,7 @@ No Termux/Linux, pode iniciar `tmux` antes de `python run.py`. Fora do tmux, o l
 
 ## Atualização
 
-Na opção **Atualizar NEXORA**, o programa usa `git pull --ff-only`. Modelos, configuração e backups ficam fora do controle de versão (`models/`, `data/`, `backups/`) e não são removidos pela atualização. Se houver alterações locais conflitantes, a atualização para sem sobrescrever arquivos.
+Na opção **[8] Atualizar pelo GitHub**, o programa busca a branch remota e aplica apenas avanço rápido (fast-forward), criando antes um backup do código versionado. Modelos, configuração e backups ficam fora do controle de versão (`models/`, `data/`, `backups/`) e não são removidos pela atualização. Se houver alterações locais em arquivos versionados, a atualização para sem sobrescrever arquivos. Após atualizar, saia e execute `python run.py` novamente: o inicializador confere as dependências da nova versão.
 
 ## Limitações conhecidas da base 0.1.0
 
@@ -83,3 +83,15 @@ Não exponha a porta local diretamente à internet. Para uso remoto, prefira tú
 ## Licença
 
 Escolha e adicione uma licença antes de publicar o projeto. Verifique também as licenças e termos de cada modelo baixado.
+
+
+## Diagnóstico no Termux
+
+Se o painel não iniciar, execute:
+
+```bash
+python -m pip check
+python -c 'import fastapi, uvicorn, h11, pydantic, pydantic_core; print(fastapi.__version__, uvicorn.__version__, h11.__version__, pydantic.__version__, pydantic_core.__version__)'
+```
+
+O arquivo `data/server-startup-error.log` guarda o traceback de falhas do servidor. Não publique `data/config.json`, pois ele contém a chave principal da API.
